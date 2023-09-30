@@ -30,26 +30,18 @@ pub struct CellularSystemState {
     pub canvas_size: [f32; 2],
 }
 
-#[derive(Clone, Resource)]
+#[derive(Clone, Default, Resource)]
 pub struct HeightMapMesh {
     pub mesh: Option<Handle<Mesh>>,
-}
-
-impl Default for HeightMapMesh {
-    fn default() -> Self {
-        Self { mesh: None }
-    }
 }
 
 impl CellularSystemState {
     pub fn paint(&mut self) {
         let center_x = (((self.paint_pos.x - 23.0)
-            * ((self.map_size[0] as f32) / self.canvas_size[0]))
-            as usize)
+            * ((self.map_size[0] as f32) / self.canvas_size[0])) as usize)
             .clamp(0, self.map_size[0] - 1);
         let center_y = (((self.paint_pos.y - 265.0)
-            * ((self.map_size[1] as f32) / self.canvas_size[1]))
-            as usize)
+            * ((self.map_size[1] as f32) / self.canvas_size[1])) as usize)
             .clamp(0, self.map_size[1] - 1);
         for r in 0..(2 * self.paint_radius) {
             for s in 0..(2 * self.paint_radius) {
@@ -84,7 +76,7 @@ impl Default for CellularSystemState {
             iteration_in_buffer: 0,
             iterations_done: 0,
             texture: None,
-            new_texture: initial_system(160,160),
+            new_texture: initial_system(160, 160),
             iterating: true,
             carnivore_diffusion_factor: 0.03956,
             plant_diffusion_factor: 0.01592,
@@ -106,7 +98,7 @@ impl Default for CellularSystemState {
     }
 }
 
-fn initial_system(width:usize, height:usize) -> egui::ColorImage {
+fn initial_system(width: usize, height: usize) -> egui::ColorImage {
     let mut rng = rand::thread_rng();
     let p = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
 
@@ -124,7 +116,7 @@ fn initial_system(width:usize, height:usize) -> egui::ColorImage {
             );
         }
     }
-    return current_image;
+    current_image
 }
 
 pub fn next_iteration(mut params: ResMut<CellularSystemState>) {
@@ -143,7 +135,7 @@ pub fn next_iteration(mut params: ResMut<CellularSystemState>) {
             ),
         );
         if params.resetting {
-            new_image = initial_system(params.map_size[0],params.map_size[1]);
+            new_image = initial_system(params.map_size[0], params.map_size[1]);
             params.resetting = false;
         } else {
             for x in 0..params.map_size[0] {

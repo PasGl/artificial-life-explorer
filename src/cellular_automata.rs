@@ -94,7 +94,7 @@ impl PixelMorphApp {
                 ui.add(egui::Slider::new(&mut params.paint_radius, 1..=100).text("Radius"));
             });
 
-            let new_name = format!("{}", params.texture_handle);
+            let new_name = params.texture_handle.to_string();
             let new_image = params.new_texture.clone();
             let raw_size = params.canvas_size;
 
@@ -127,9 +127,7 @@ impl PixelMorphApp {
         });
     }
 
-    pub fn setup_3d_scene(
-        mut commands: Commands,
-    ) {
+    pub fn setup_3d_scene(mut commands: Commands) {
         commands.spawn(PointLightBundle {
             point_light: PointLight {
                 intensity: 1500.0,

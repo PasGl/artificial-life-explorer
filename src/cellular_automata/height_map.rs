@@ -9,7 +9,7 @@ pub struct HeightMapMeshData {
 }
 
 pub fn height_map_from_channel(params: Res<CellularSystemState>, size: f32) -> HeightMapMeshData {
-    let vertices = params
+    let vertices: Vec<Vec3> = params
         .new_texture
         .pixels
         .iter()
@@ -57,15 +57,21 @@ fn height_map_triangle_indices(width: usize, height: usize) -> Vec<u32> {
     indexlist
 }
 
-fn calculate_normals(vertices: &Vec<Vec3>, width: usize, height: usize) -> Vec<Vec3> {
+fn calculate_normals(vertices: &[Vec3], width: usize, height: usize) -> Vec<Vec3> {
     let mut normalslist: Vec<Vec3> = vec![Vec3::default(); width * height];
 
     for x in 0..(width as i32) {
         for y in 0..(height as i32) {
-            let h_l = vertices[torus_topology::modulo_robust(x - 1, width as i32) + width * y as usize].y;
-            let h_r = vertices[torus_topology::modulo_robust(x + 1, width as i32) + width * y as usize].y;
-            let h_d = vertices[x as usize + width * torus_topology::modulo_robust(y - 1, height as i32)].y;
-            let h_u = vertices[x as usize + width * torus_topology::modulo_robust(y + 1, height as i32)].y;
+            let h_l =
+                vertices[torus_topology::modulo_robust(x - 1, width as i32) + width * y as usize].y;
+            let h_r =
+                vertices[torus_topology::modulo_robust(x + 1, width as i32) + width * y as usize].y;
+            let h_d = vertices
+                [x as usize + width * torus_topology::modulo_robust(y - 1, height as i32)]
+            .y;
+            let h_u = vertices
+                [x as usize + width * torus_topology::modulo_robust(y + 1, height as i32)]
+            .y;
             normalslist[x as usize + width * y as usize] =
                 Vec3::new(h_l - h_r, h_d - h_u, (4.0 * 5.5) / 160.0).normalize();
         }
