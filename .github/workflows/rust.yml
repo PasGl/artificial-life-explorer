@@ -36,6 +36,7 @@ jobs:
           toolchain: stable
           override: true
           components: clippy
+      - run: sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
