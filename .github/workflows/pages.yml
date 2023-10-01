@@ -4,7 +4,7 @@ name: Github Pages
 on:
   push:
     branches:
-      - master
+      - main
 # to only run when you do a new github release, comment out above part and uncomment the below trigger.
 # on:
 #   release:
@@ -36,7 +36,7 @@ jobs:
         # this is necessary for github pages where the site is deployed to username.github.io/repo_name and all files must be requested
         # relatively as eframe_template/favicon.ico. if we skip public-url option, the href paths will instead request username.github.io/favicon.ico which
         # will obviously return error 404 not found.
-        run: ./trunk build --release --public-url "${GITHUB_REPOSITORY#*/}"
+        run: ./trunk build --release -d docs
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
