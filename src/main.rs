@@ -7,8 +7,8 @@ fn main() {
         .add_plugins((
             DefaultPlugins,
             EguiPlugin,
-            bevy::diagnostic::LogDiagnosticsPlugin::default(),
-            bevy::diagnostic::FrameTimeDiagnosticsPlugin,
+            //bevy::diagnostic::LogDiagnosticsPlugin::default(),
+            //bevy::diagnostic::FrameTimeDiagnosticsPlugin,
         ))
         .insert_resource(cellular_automata::state::CellularSystemState::default())
         .insert_resource(cellular_automata::state::HeightMapMesh::default())
