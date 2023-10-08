@@ -38,16 +38,17 @@ pub struct HeightMapMesh {
 impl CellularSystemState {
     pub fn paint(&mut self) {
         let center_x = (((self.paint_pos.x - 23.0)
-            * ((self.map_size[0] as f32) / self.canvas_size[0])) as usize)
-            .clamp(0, self.map_size[0] - 1);
+            * ((self.map_size[0] as f32) / self.canvas_size[0])) as i32)
+            .clamp(0, (self.map_size[0] - 1) as i32);
         let center_y = (((self.paint_pos.y - 265.0)
-            * ((self.map_size[1] as f32) / self.canvas_size[1])) as usize)
-            .clamp(0, self.map_size[1] - 1);
-        for r in 0..(2 * self.paint_radius) {
-            for s in 0..(2 * self.paint_radius) {
-                if (r - self.paint_radius) * (r - self.paint_radius)
-                    + (s - self.paint_radius) * (s - self.paint_radius)
-                    <= self.paint_radius * self.paint_radius
+            * ((self.map_size[1] as f32) / self.canvas_size[1])) as i32)
+            .clamp(0, (self.map_size[1] - 1) as i32);
+        for r in 0..(2 * self.paint_radius as i32) {
+            for s in 0..(2 * self.paint_radius as i32) {
+                let radius = self.paint_radius as i32;
+                if (r - radius) * (r - radius)
+                    + (s - radius) * (s - radius)
+                    <= radius * radius
                 {
                     self.new_texture[(
                         torus_topology::modulo_robust(
