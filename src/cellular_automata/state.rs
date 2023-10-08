@@ -43,17 +43,17 @@ impl CellularSystemState {
         let center_y = (((self.paint_pos.y - 265.0)
             * ((self.map_size[1] as f32) / self.canvas_size[1])) as i32)
             .clamp(0, (self.map_size[1] - 1) as i32);
-        for r in 0..(2 * self.paint_radius as i32) {
-            for s in 0..(2 * self.paint_radius as i32) {
-                let radius = self.paint_radius as i32;
+        let radius = self.paint_radius as i32;
+        for r in 0..2 * radius {
+            for s in 0..2 * radius {
                 if (r - radius) * (r - radius) + (s - radius) * (s - radius) <= radius * radius {
                     self.new_texture[(
                         torus_topology::modulo_robust(
-                            (center_x + r) as i32 - self.paint_radius as i32,
+                            center_x + r - radius,
                             self.map_size[0] as i32,
                         ),
                         torus_topology::modulo_robust(
-                            (center_y + s) as i32 - self.paint_radius as i32,
+                            center_y + s - radius,
                             self.map_size[1] as i32,
                         ),
                     )] = egui::Color32::from_rgb(
