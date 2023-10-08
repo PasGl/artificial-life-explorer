@@ -46,10 +46,7 @@ impl CellularSystemState {
         for r in 0..(2 * self.paint_radius as i32) {
             for s in 0..(2 * self.paint_radius as i32) {
                 let radius = self.paint_radius as i32;
-                if (r - radius) * (r - radius)
-                    + (s - radius) * (s - radius)
-                    <= radius * radius
-                {
+                if (r - radius) * (r - radius) + (s - radius) * (s - radius) <= radius * radius {
                     self.new_texture[(
                         torus_topology::modulo_robust(
                             (center_x + r) as i32 - self.paint_radius as i32,
