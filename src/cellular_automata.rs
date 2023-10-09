@@ -98,15 +98,15 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
                 .load_texture(new_name, new_image, Default::default())
         });
 
-        if let Some(pos) = ui
-            .image(
-                texture_handle_to_render,
-                bevy_egui::egui::Vec2::new(raw_size[0], raw_size[1]),
-            )
-            .hover_pos()
-        {
+        let img = ui.image(
+            texture_handle_to_render,
+            bevy_egui::egui::Vec2::new(raw_size[0], raw_size[1]),
+        );
+
+        if let Some(pos) = img.hover_pos() {
+            let min_pos = img.rect.min;
             params.painting = true;
-            params.paint_pos = pos;
+            params.paint_pos = bevy_egui::egui::Pos2::new(pos.x - min_pos.x, pos.y - min_pos.y);
         } else {
             params.painting = false;
         }

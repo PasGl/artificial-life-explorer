@@ -37,11 +37,11 @@ pub struct HeightMapMesh {
 
 impl CellularSystemState {
     pub fn paint(&mut self) {
-        let center_x = (((self.paint_pos.x - 23.0)
-            * ((self.map_size[0] as f32) / self.canvas_size[0])) as i32)
+        let center_x = ((self.paint_pos.x * ((self.map_size[0] as f32) / self.canvas_size[0]))
+            as i32)
             .clamp(0, (self.map_size[0] - 1) as i32);
-        let center_y = (((self.paint_pos.y - 265.0)
-            * ((self.map_size[1] as f32) / self.canvas_size[1])) as i32)
+        let center_y = ((self.paint_pos.y * ((self.map_size[1] as f32) / self.canvas_size[1]))
+            as i32)
             .clamp(0, (self.map_size[1] - 1) as i32);
         let radius = self.paint_radius as i32;
         for r in 0..2 * radius {
