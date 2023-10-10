@@ -22,9 +22,10 @@ pub fn height_map_from_channel(params: Res<CellularSystemState>, size: f32) -> H
                 _ => ((pixel.r() as f32 + pixel.g() as f32 + pixel.b() as f32) / 3.0) as u8,
             };
             [
-                size * ((i % params.map_size[0]) as f32 / params.map_size[0] as f32 - 0.5),
+                size * ((i % params.map_size[0]) as f32 / (params.map_size[0] - 1) as f32 - 0.5),
                 0.5 * height_value as f32 / 255.0,
-                size * ((i / params.map_size[0]) as f32 / params.map_size[1] as f32 - 0.5),
+                size * (params.map_size[1] as f32 / params.map_size[0] as f32)
+                    * ((i / params.map_size[0]) as f32 / (params.map_size[1] - 1) as f32 - 0.5),
             ]
             .into()
         })
@@ -43,15 +44,13 @@ fn height_map_triangle_indices(width: usize, height: usize) -> Vec<u32> {
     let mut indexlist: Vec<u32> = vec![];
     for x in 0..(width - 1) {
         for y in 0..(height - 1) {
-            indexlist.push(((y * height) + x) as u32);
+            indexlist.push(((y * width) + x) as u32);
+            indexlist.push(((y * width) + x + width) as u32);
+            indexlist.push(((y * width) + x + 1) as u32);
 
-            indexlist.push(((y * height) + x + width) as u32);
-            indexlist.push(((y * height) + x + 1) as u32);
-
-            indexlist.push(((y * height) + x + 1) as u32);
-
-            indexlist.push(((y * height) + x + width) as u32);
-            indexlist.push(((y * height) + x + width + 1) as u32);
+            indexlist.push(((y * width) + x + 1) as u32);
+            indexlist.push(((y * width) + x + width) as u32);
+            indexlist.push(((y * width) + x + width + 1) as u32);
         }
     }
     indexlist

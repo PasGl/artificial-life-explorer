@@ -1,7 +1,7 @@
 use bevy_egui::egui;
 
 pub fn modulo_robust(first: i32, second: i32) -> usize {
-    ((first + (second)) % (second)) as usize
+    ((first + (100 * second)) % (second)) as usize
 }
 
 fn torus_pixel_channel(
