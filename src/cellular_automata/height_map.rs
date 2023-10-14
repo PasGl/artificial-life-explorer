@@ -8,7 +8,7 @@ pub struct HeightMapMeshData {
     pub indices: Vec<u32>,
 }
 
-pub fn height_map_from_channel(params: Res<CellularSystemState>, size: f32) -> HeightMapMeshData {
+pub fn height_map(params: Res<CellularSystemState>, size: f32) -> HeightMapMeshData {
     let vertices: Vec<Vec3> = params
         .new_texture
         .pixels
@@ -76,4 +76,30 @@ fn calculate_normals(vertices: &[Vec3], width: usize, height: usize) -> Vec<Vec3
         }
     }
     normalslist
+}
+
+pub fn update_heightmap(
+    mut meshes: ResMut<Assets<Mesh>>,
+    mesh: ResMut<super::state::HeightMapMesh>,
+    params: Res<super::state::CellularSystemState>,
+) {
+    if let Some(id) = &mesh.mesh {
+        let active_mesh = meshes.get_mut(id).unwrap();
+        let positions = active_mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap();
+        if let bevy::render::mesh::VertexAttributeValues::Float32x3(vertices) = positions {
+            let new_vertices: Vec<Vec3> = vertices.iter().enumerate().map(|(i, pos)| {
+                let pixel = params.new_texture.pixels[i];
+                let height_value = match params.render_channel {
+                    0 => pixel.r(),
+                    1 => pixel.g(),
+                    2 => pixel.b(),
+                    _ => ((pixel.r() as f32 + pixel.g() as f32 + pixel.b() as f32) / 3.0) as u8,
+                };
+                [pos[0], 0.5 * height_value as f32 / 255.0, pos[2]].into()
+            }).collect();
+            let new_normals = calculate_normals(&new_vertices, params.map_size[0], params.map_size[1]);
+            active_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, new_vertices);
+            active_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, new_normals);
+        }
+    }
 }

@@ -86,10 +86,10 @@ impl Default for CellularSystemState {
             carnivore_eating_ratio: 0.09852391,
             painting: false,
             paint_pos: [50.0, 50.0].into(),
-            paint_color: [1.0, 0.0, 0.0],
+            paint_color: [1.0, 1.0, 1.0],
             paint_radius: 20,
             resetting: false,
-            render_channel: 0,
+            render_channel: 3,
             map_size: [160, 160],
             canvas_size: [320.0, 320.0],
         }

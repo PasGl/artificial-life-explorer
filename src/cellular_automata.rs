@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-mod height_map;
+pub(crate) mod height_map;
 pub(crate) mod state;
 mod torus_topology;
 
@@ -122,7 +122,13 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
     });
 }
 
-pub fn setup_3d_scene(mut commands: Commands) {
+pub fn setup_3d_scene(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut mesh: ResMut<state::HeightMapMesh>,
+    params: Res<state::CellularSystemState>,
+) {
     commands.spawn(PointLightBundle {
         point_light: PointLight {
             intensity: 1500.0,
@@ -136,16 +142,7 @@ pub fn setup_3d_scene(mut commands: Commands) {
         transform: Transform::from_xyz(-1.0, 3.5, 6.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
-}
-
-pub fn update_3d_scene(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut mesh: ResMut<state::HeightMapMesh>,
-    params: Res<state::CellularSystemState>,
-) {
-    let height_map = height_map::height_map_from_channel(params, 5.5);
+    let height_map = height_map::height_map(params, 5.5);
 
     let mut height_mesh = Mesh::new(bevy::render::render_resource::PrimitiveTopology::TriangleList);
 
@@ -153,9 +150,6 @@ pub fn update_3d_scene(
     height_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, height_map.normals);
     height_mesh.set_indices(Some(bevy::render::mesh::Indices::U32(height_map.indices)));
 
-    if let Some(id) = &mesh.mesh {
-        meshes.remove(id);
-    }
     let height_mesh_handle = meshes.add(height_mesh);
     mesh.mesh = Some(height_mesh_handle.clone());
 
