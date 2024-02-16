@@ -207,7 +207,7 @@ pub fn next_iteration(mut params: ResMut<CellularSystemState>) {
 }
 
 fn diffusion(concentration: f32, weighted_sum_neighbors: f32, diffusion_coefficient: f32) -> f32 {
-    concentration - 6.836879433 * concentration * diffusion_coefficient
+    concentration - 6.837 * concentration * diffusion_coefficient
         + weighted_sum_neighbors * diffusion_coefficient
 }
 
@@ -217,7 +217,6 @@ fn reaction_red(
     blue: f32,
     params: &bevy::prelude::ResMut<'_, CellularSystemState>,
 ) -> f32 {
-    //params[0] * red * (1.0 - red) - params[1] * red * green
     params.a * red * (1.0 - red) - ((params.b * red * green) / (1.0 + params.c * red * red))
         + params.d * (green - red) * blue * blue
 }
@@ -228,7 +227,6 @@ fn reaction_green(
     blue: f32,
     params: &bevy::prelude::ResMut<'_, CellularSystemState>,
 ) -> f32 {
-    //params[2] * green * (1.0 - green) - params[3] * green * blue
     params.e * green * (1.0 - green)
         - ((params.f * green * blue) / (1.0 + params.g * green * green))
         + params.h * (blue - green) * red * red
@@ -240,7 +238,6 @@ fn reaction_blue(
     blue: f32,
     params: &bevy::prelude::ResMut<'_, CellularSystemState>,
 ) -> f32 {
-    //params[4] * blue * (1.0 - blue) - params[5] * blue * red
     params.i * blue * (1.0 - blue) - ((params.j * blue * red) / (1.0 + params.k * blue * blue))
         + params.l * (red - blue) * green * green
 }
