@@ -8,14 +8,9 @@ use super::torus_topology;
 pub struct CellularSystemState {
     pub texture_handle: String,
     pub iterating: bool,
-    pub carnivore_diffusion_factor: f32,
-    pub plant_diffusion_factor: f32,
-    pub herbivore_diffusion_factor: f32,
-    pub survival_rate_carnivores: f32,
-    pub survival_rate_herbivores: f32,
-    pub plant_growth_factor: f32,
-    pub herbivore_eating_ratio: f32,
-    pub carnivore_eating_ratio: f32,
+    pub diffusion_factor_red: f32,
+    pub diffusion_factor_green: f32,
+    pub diffusion_factor_blue: f32,
     iteration_in_buffer: u64,
     iterations_done: u64,
     pub texture: Option<egui::TextureHandle>,
@@ -28,6 +23,18 @@ pub struct CellularSystemState {
     pub render_channel: usize,
     pub map_size: [usize; 2],
     pub canvas_size: [f32; 2],
+    pub a: f32,
+    pub b: f32,
+    pub c: f32,
+    pub d: f32,
+    pub e: f32,
+    pub f: f32,
+    pub g: f32,
+    pub h: f32,
+    pub i: f32,
+    pub j: f32,
+    pub k: f32,
+    pub l: f32,
 }
 
 #[derive(Clone, Default, Resource)]
@@ -76,14 +83,9 @@ impl Default for CellularSystemState {
             texture: None,
             new_texture: initial_system(160, 160),
             iterating: true,
-            carnivore_diffusion_factor: 0.03956,
-            plant_diffusion_factor: 0.01592,
-            herbivore_diffusion_factor: 0.02515,
-            survival_rate_carnivores: 0.995,
-            survival_rate_herbivores: 0.9995,
-            plant_growth_factor: 1.04,
-            herbivore_eating_ratio: 0.06915,
-            carnivore_eating_ratio: 0.09852391,
+            diffusion_factor_red: 0.02248,
+            diffusion_factor_green: 0.08454,
+            diffusion_factor_blue: 0.05918,
             painting: false,
             paint_pos: [50.0, 50.0].into(),
             paint_color: [1.0, 1.0, 1.0],
@@ -92,6 +94,18 @@ impl Default for CellularSystemState {
             render_channel: 3,
             map_size: [160, 160],
             canvas_size: [320.0, 320.0],
+            a: 0.98204,
+            b: 3.195,
+            c: 0.112,
+            d: 0.458,
+            e: 0.92762,
+            f: 4.666,
+            g: 0.62,
+            h: 0.981,
+            i: 0.92696,
+            j: 2.015,
+            k: 0.465,
+            l: 0.727,
         }
     }
 }
@@ -163,38 +177,20 @@ pub fn next_iteration(mut params: ResMut<CellularSystemState>) {
                         params.map_size[1] as i32,
                         2,
                     );
-                    let current_cell_carnivores = params.new_texture[(x, y)].to_array()[0] as f32;
-                    let current_cell_plants = params.new_texture[(x, y)].to_array()[1] as f32;
-                    let current_cell_herbivores = params.new_texture[(x, y)].to_array()[2] as f32;
+                    let red = params.new_texture[(x, y)].to_array()[0] as f32;
+                    let green = params.new_texture[(x, y)].to_array()[1] as f32;
+                    let blue = params.new_texture[(x, y)].to_array()[2] as f32;
 
-                    let pixel_r = // survivers in this cell
-            (current_cell_carnivores * params.survival_rate_carnivores)
-            // + migration from neighbors
-            + (r_sum_neighbours * params.carnivore_diffusion_factor)
-            // - migration to neighbors
-            - (current_cell_carnivores * 8.0 * params.carnivore_diffusion_factor)
-            // + growth from eating herbivores
-            + (current_cell_herbivores * (current_cell_carnivores/255.0) * params.carnivore_eating_ratio);
+                    let pixel_r = diffusion(red, r_sum_neighbours, params.diffusion_factor_red)
+                        + (255.0 * reaction_red(red / 255.0, green / 255.0, blue / 255.0, &params));
 
-                    let pixel_g = // growth from sun
-            (current_cell_plants * params.plant_growth_factor)
-            // + migration from neighbors
-            + (g_sum_neighbours * params.plant_diffusion_factor)
-            // - migration to neighbors
-            - (current_cell_plants * 8.0 * params.plant_diffusion_factor)
-            // - eaten by herbivores
-            - (current_cell_herbivores * (current_cell_plants/255.0)* params.herbivore_eating_ratio);
+                    let pixel_g = diffusion(green, g_sum_neighbours, params.diffusion_factor_green)
+                        + (255.0
+                            * reaction_green(red / 255.0, green / 255.0, blue / 255.0, &params));
 
-                    let pixel_b = // survivers in this cell
-            (current_cell_herbivores * params.survival_rate_herbivores)
-            // +migration from neighbors
-            + (b_sum_neighbours * params.herbivore_diffusion_factor)
-            // - migration to neighbors
-            - (current_cell_herbivores * 8.0 *  params.herbivore_diffusion_factor)
-            // + growth from eating plants
-            + (current_cell_plants * (current_cell_herbivores/255.0) * params.herbivore_eating_ratio)
-            // - eaten by carnivores
-            - (current_cell_carnivores * (current_cell_herbivores/255.0) * params.carnivore_eating_ratio);
+                    let pixel_b = diffusion(blue, b_sum_neighbours, params.diffusion_factor_blue)
+                        + (255.0
+                            * reaction_blue(red / 255.0, green / 255.0, blue / 255.0, &params));
 
                     new_image[(x, y)] =
                         egui::Color32::from_rgb(pixel_r as u8, pixel_g as u8, pixel_b as u8);
@@ -208,4 +204,43 @@ pub fn next_iteration(mut params: ResMut<CellularSystemState>) {
         let t: Option<egui::TextureHandle> = None;
         params.texture = t;
     }
+}
+
+fn diffusion(concentration: f32, weighted_sum_neighbors: f32, diffusion_coefficient: f32) -> f32 {
+    concentration - 6.836879433 * concentration * diffusion_coefficient
+        + weighted_sum_neighbors * diffusion_coefficient
+}
+
+fn reaction_red(
+    red: f32,
+    green: f32,
+    blue: f32,
+    params: &bevy::prelude::ResMut<'_, CellularSystemState>,
+) -> f32 {
+    //params[0] * red * (1.0 - red) - params[1] * red * green
+    params.a * red * (1.0 - red) - ((params.b * red * green) / (1.0 + params.c * red * red))
+        + params.d * (green - red) * blue * blue
+}
+
+fn reaction_green(
+    red: f32,
+    green: f32,
+    blue: f32,
+    params: &bevy::prelude::ResMut<'_, CellularSystemState>,
+) -> f32 {
+    //params[2] * green * (1.0 - green) - params[3] * green * blue
+    params.e * green * (1.0 - green)
+        - ((params.f * green * blue) / (1.0 + params.g * green * green))
+        + params.h * (blue - green) * red * red
+}
+
+fn reaction_blue(
+    red: f32,
+    green: f32,
+    blue: f32,
+    params: &bevy::prelude::ResMut<'_, CellularSystemState>,
+) -> f32 {
+    //params[4] * blue * (1.0 - blue) - params[5] * blue * red
+    params.i * blue * (1.0 - blue) - ((params.j * blue * red) / (1.0 + params.k * blue * blue))
+        + params.l * (red - blue) * green * green
 }

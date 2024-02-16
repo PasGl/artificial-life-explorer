@@ -27,7 +27,6 @@ pub fn sum_neighbour_channel(
     torus_pixel_channel(image, x - 1, y - 1, width, height, channel) / 1.41
         + torus_pixel_channel(image, x, y - 1, width, height, channel)
         + torus_pixel_channel(image, x + 1, y - 1, width, height, channel) / 1.41
-        + torus_pixel_channel(image, x - 1, y - 1, width, height, channel) / 1.41
         + torus_pixel_channel(image, x + 1, y, width, height, channel)
         + torus_pixel_channel(image, x - 1, y, width, height, channel)
         + torus_pixel_channel(image, x - 1, y + 1, width, height, channel) / 1.41
