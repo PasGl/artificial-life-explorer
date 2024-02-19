@@ -67,51 +67,15 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
                 params.resetting = true;
             }
             if ui.button("Random").clicked() {
-                let mut rng = rand::thread_rng();
-                let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
-                let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
-                let p2 = rand::distributions::Uniform::new_inclusive(0.0, 5.0);
-                let p3 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
-                let p4 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
-                params.red.diffusion_coefficient = p0.sample(&mut rng);
-                params.red.growth_rate = p1.sample(&mut rng);
-                params.red.interaction_coefficient = p2.sample(&mut rng);
-                params.red.saturation_constant = p3.sample(&mut rng);
-                params.red.feedback_coefficient = p4.sample(&mut rng);
-                params.green.diffusion_coefficient = p0.sample(&mut rng);
-                params.green.growth_rate = p1.sample(&mut rng);
-                params.green.interaction_coefficient = p2.sample(&mut rng);
-                params.green.saturation_constant = p3.sample(&mut rng);
-                params.green.feedback_coefficient = p4.sample(&mut rng);
-                params.blue.diffusion_coefficient = p0.sample(&mut rng);
-                params.blue.growth_rate = p1.sample(&mut rng);
-                params.blue.interaction_coefficient = p2.sample(&mut rng);
-                params.blue.saturation_constant = p3.sample(&mut rng);
-                params.blue.feedback_coefficient = p4.sample(&mut rng);
+                params.red = random_channel_parameters();
+                params.green = random_channel_parameters();
+                params.blue = random_channel_parameters();
             };
             if ui.button("Reset & Random").clicked() {
                 params.resetting = true;
-                let mut rng = rand::thread_rng();
-                let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
-                let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
-                let p2 = rand::distributions::Uniform::new_inclusive(0.0, 5.0);
-                let p3 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
-                let p4 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
-                params.red.diffusion_coefficient = p0.sample(&mut rng);
-                params.red.growth_rate = p1.sample(&mut rng);
-                params.red.interaction_coefficient = p2.sample(&mut rng);
-                params.red.saturation_constant = p3.sample(&mut rng);
-                params.red.feedback_coefficient = p4.sample(&mut rng);
-                params.green.diffusion_coefficient = p0.sample(&mut rng);
-                params.green.growth_rate = p1.sample(&mut rng);
-                params.green.interaction_coefficient = p2.sample(&mut rng);
-                params.green.saturation_constant = p3.sample(&mut rng);
-                params.green.feedback_coefficient = p4.sample(&mut rng);
-                params.blue.diffusion_coefficient = p0.sample(&mut rng);
-                params.blue.growth_rate = p1.sample(&mut rng);
-                params.blue.interaction_coefficient = p2.sample(&mut rng);
-                params.blue.saturation_constant = p3.sample(&mut rng);
-                params.blue.feedback_coefficient = p4.sample(&mut rng);
+                params.red = random_channel_parameters();
+                params.green = random_channel_parameters();
+                params.blue = random_channel_parameters();
             }
         });
         ui.add(egui::Slider::new(&mut params.render_channel, 0..=3).text("Render Channel"));
@@ -144,6 +108,22 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
             params.painting = false;
         }
     });
+}
+
+pub fn random_channel_parameters() -> state::ChannelParameters {
+    let mut rng = rand::thread_rng();
+    let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
+    let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
+    let p2 = rand::distributions::Uniform::new_inclusive(0.0, 5.0);
+    let p3 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+    let p4 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+    state::ChannelParameters {
+        diffusion_coefficient: p0.sample(&mut rng),
+        growth_rate: p1.sample(&mut rng),
+        interaction_coefficient: p2.sample(&mut rng),
+        saturation_constant: p3.sample(&mut rng),
+        feedback_coefficient: p4.sample(&mut rng),
+    }
 }
 
 pub fn setup_3d_scene(
