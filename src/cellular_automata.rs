@@ -9,7 +9,7 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
     if params.painting {
         params.paint();
     }
-    egui::Window::new("Settings").show(contexts.ctx_mut(), |ui| {
+    egui::Window::new("Control").show(contexts.ctx_mut(), |ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.checkbox(&mut params.iterating, "keep runnning");
             if ui.button("Reset").clicked() {
@@ -74,18 +74,18 @@ fn add_channel_ui(channel: &mut state::ChannelParameters, ui: &mut egui::Ui, lab
             .text(format!("{} Diffusion", label)),
     );
     ui.add(
-        egui::Slider::new(&mut channel.growth_rate, 0.8..=1.0).text(format!("{} Growth", label)),
+        egui::Slider::new(&mut channel.growth_rate, 0.7..=1.0).text(format!("{} Growth", label)),
     );
     ui.add(
         egui::Slider::new(&mut channel.interaction_coefficient, 0.0..=5.0)
             .text(format!("{} Interaction", label)),
     );
     ui.add(
-        egui::Slider::new(&mut channel.saturation_constant, 0.0..=5.0)
+        egui::Slider::new(&mut channel.saturation_constant, 0.0..=3.0)
             .text(format!("{} Saturation", label)),
     );
     ui.add(
-        egui::Slider::new(&mut channel.feedback_coefficient, 0.0..=5.0)
+        egui::Slider::new(&mut channel.feedback_coefficient, 0.0..=3.0)
             .text(format!("{} Feedback", label)),
     );
 }
@@ -93,10 +93,10 @@ fn add_channel_ui(channel: &mut state::ChannelParameters, ui: &mut egui::Ui, lab
 fn random_channel_parameters() -> state::ChannelParameters {
     let mut rng = rand::thread_rng();
     let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
-    let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
+    let p1 = rand::distributions::Uniform::new_inclusive(0.7, 1.0);
     let p2 = rand::distributions::Uniform::new_inclusive(0.0, 5.0);
-    let p3 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
-    let p4 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+    let p3 = rand::distributions::Uniform::new_inclusive(0.0, 3.0);
+    let p4 = rand::distributions::Uniform::new_inclusive(0.0, 3.0);
     state::ChannelParameters {
         diffusion_coefficient: p0.sample(&mut rng),
         growth_rate: p1.sample(&mut rng),
