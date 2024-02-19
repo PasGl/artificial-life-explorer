@@ -10,57 +10,6 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
         params.paint();
     }
     egui::Window::new("Settings").show(contexts.ctx_mut(), |ui| {
-        ui.add(
-            egui::Slider::new(&mut params.red.diffusion_coefficient, 0.0..=0.1)
-                .text("Red Diffusion"),
-        );
-        ui.add(egui::Slider::new(&mut params.red.growth_rate, 0.8..=1.0).text("Red Growth"));
-        ui.add(
-            egui::Slider::new(&mut params.red.interaction_coefficient, 0.0..=5.0)
-                .text("Red Interaction"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.red.saturation_constant, 0.0..=5.0)
-                .text("Red Saturation"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.red.feedback_coefficient, 0.0..=5.0).text("Red Feedback"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.green.diffusion_coefficient, 0.0..=0.1)
-                .text("Green Diffusion"),
-        );
-        ui.add(egui::Slider::new(&mut params.green.growth_rate, 0.8..=5.0).text("Green Growth"));
-        ui.add(
-            egui::Slider::new(&mut params.green.interaction_coefficient, 0.0..=5.0)
-                .text("Green Interaction"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.green.saturation_constant, 0.0..=5.0)
-                .text("Green Saturation"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.green.feedback_coefficient, 0.0..=5.0)
-                .text("Green Feedback"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.blue.diffusion_coefficient, 0.0..=0.1)
-                .text("Blue Diffusion"),
-        );
-        ui.add(egui::Slider::new(&mut params.blue.growth_rate, 0.8..=1.0).text("Blue Growth"));
-        ui.add(
-            egui::Slider::new(&mut params.blue.interaction_coefficient, 0.0..=5.0)
-                .text("Blue Interaction"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.blue.saturation_constant, 0.0..=5.0)
-                .text("Blue Saturation"),
-        );
-        ui.add(
-            egui::Slider::new(&mut params.blue.feedback_coefficient, 0.0..=5.0)
-                .text("Blue Feedback"),
-        );
-
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.checkbox(&mut params.iterating, "keep runnning");
             if ui.button("Reset").clicked() {
@@ -108,9 +57,40 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
             params.painting = false;
         }
     });
+    egui::Window::new("Red").show(contexts.ctx_mut(), |ui| {
+        add_channel_ui(&mut params.red, ui, "Red".to_owned());
+    });
+    egui::Window::new("Green").show(contexts.ctx_mut(), |ui| {
+        add_channel_ui(&mut params.green, ui, "Green".to_owned());
+    });
+    egui::Window::new("Blue").show(contexts.ctx_mut(), |ui| {
+        add_channel_ui(&mut params.blue, ui, "Blue".to_owned());
+    });
 }
 
-pub fn random_channel_parameters() -> state::ChannelParameters {
+fn add_channel_ui(channel: &mut state::ChannelParameters, ui: &mut egui::Ui, label: String) {
+    ui.add(
+        egui::Slider::new(&mut channel.diffusion_coefficient, 0.0..=0.1)
+            .text(format!("{} Diffusion", label)),
+    );
+    ui.add(
+        egui::Slider::new(&mut channel.growth_rate, 0.8..=1.0).text(format!("{} Growth", label)),
+    );
+    ui.add(
+        egui::Slider::new(&mut channel.interaction_coefficient, 0.0..=5.0)
+            .text(format!("{} Interaction", label)),
+    );
+    ui.add(
+        egui::Slider::new(&mut channel.saturation_constant, 0.0..=5.0)
+            .text(format!("{} Saturation", label)),
+    );
+    ui.add(
+        egui::Slider::new(&mut channel.feedback_coefficient, 0.0..=5.0)
+            .text(format!("{} Feedback", label)),
+    );
+}
+
+fn random_channel_parameters() -> state::ChannelParameters {
     let mut rng = rand::thread_rng();
     let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
     let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
