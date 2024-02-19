@@ -11,29 +11,55 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
     }
     egui::Window::new("Settings").show(contexts.ctx_mut(), |ui| {
         ui.add(
-            egui::Slider::new(&mut params.diffusion_factor_red, 0.001..=0.1)
-                .text("diffusion_factor_red"),
-        ); //: 0.03956,
+            egui::Slider::new(&mut params.red.diffusion_coefficient, 0.0..=0.1)
+                .text("Red Diffusion"),
+        );
+        ui.add(egui::Slider::new(&mut params.red.growth_rate, 0.8..=1.0).text("Red Growth"));
         ui.add(
-            egui::Slider::new(&mut params.diffusion_factor_green, 0.001..=0.1)
-                .text("diffusion_factor_green"),
-        ); //: 0.01592,
+            egui::Slider::new(&mut params.red.interaction_coefficient, 0.0..=5.0)
+                .text("Red Interaction"),
+        );
         ui.add(
-            egui::Slider::new(&mut params.diffusion_factor_blue, 0.001..=0.1)
-                .text("diffusion_factor_blue"),
-        ); //: 0.02515,
-        ui.add(egui::Slider::new(&mut params.a, 0.9..=0.99).text("a"));
-        ui.add(egui::Slider::new(&mut params.b, 0.01..=10.0).text("b"));
-        ui.add(egui::Slider::new(&mut params.c, 0.1..=100.0).text("c"));
-        ui.add(egui::Slider::new(&mut params.d, 0.001..=10.0).text("d"));
-        ui.add(egui::Slider::new(&mut params.e, 0.9..=0.99).text("e"));
-        ui.add(egui::Slider::new(&mut params.f, 0.01..=10.0).text("f"));
-        ui.add(egui::Slider::new(&mut params.g, 0.1..=100.0).text("g"));
-        ui.add(egui::Slider::new(&mut params.h, 0.001..=10.0).text("h"));
-        ui.add(egui::Slider::new(&mut params.i, 0.9..=0.99).text("i"));
-        ui.add(egui::Slider::new(&mut params.j, 0.01..=10.0).text("j"));
-        ui.add(egui::Slider::new(&mut params.k, 0.1..=100.0).text("k"));
-        ui.add(egui::Slider::new(&mut params.l, 0.001..=10.0).text("l"));
+            egui::Slider::new(&mut params.red.saturation_constant, 0.0..=5.0)
+                .text("Red Saturation"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.red.feedback_coefficient, 0.0..=5.0).text("Red Feedback"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.green.diffusion_coefficient, 0.0..=0.1)
+                .text("Green Diffusion"),
+        );
+        ui.add(egui::Slider::new(&mut params.green.growth_rate, 0.8..=5.0).text("Green Growth"));
+        ui.add(
+            egui::Slider::new(&mut params.green.interaction_coefficient, 0.0..=5.0)
+                .text("Green Interaction"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.green.saturation_constant, 0.0..=5.0)
+                .text("Green Saturation"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.green.feedback_coefficient, 0.0..=5.0)
+                .text("Green Feedback"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.blue.diffusion_coefficient, 0.0..=0.1)
+                .text("Blue Diffusion"),
+        );
+        ui.add(egui::Slider::new(&mut params.blue.growth_rate, 0.8..=1.0).text("Blue Growth"));
+        ui.add(
+            egui::Slider::new(&mut params.blue.interaction_coefficient, 0.0..=5.0)
+                .text("Blue Interaction"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.blue.saturation_constant, 0.0..=5.0)
+                .text("Blue Saturation"),
+        );
+        ui.add(
+            egui::Slider::new(&mut params.blue.feedback_coefficient, 0.0..=5.0)
+                .text("Blue Feedback"),
+        );
 
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.checkbox(&mut params.iterating, "keep runnning");
@@ -42,50 +68,50 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
             }
             if ui.button("Random").clicked() {
                 let mut rng = rand::thread_rng();
-                let p0 = rand::distributions::Uniform::new_inclusive(0.001, 0.1);
-                let p1 = rand::distributions::Uniform::new_inclusive(0.9, 0.99);
-                let p2 = rand::distributions::Uniform::new_inclusive(0.4, 5.0);
-                let p3 = rand::distributions::Uniform::new_inclusive(0.1, 1.0);
-                let p4 = rand::distributions::Uniform::new_inclusive(0.001, 1.0);
-                params.diffusion_factor_red = p0.sample(&mut rng);
-                params.diffusion_factor_green = p0.sample(&mut rng);
-                params.diffusion_factor_blue = p0.sample(&mut rng);
-                params.a = p1.sample(&mut rng);
-                params.b = p2.sample(&mut rng);
-                params.c = p3.sample(&mut rng);
-                params.d = p4.sample(&mut rng);
-                params.e = p1.sample(&mut rng);
-                params.f = p2.sample(&mut rng);
-                params.g = p3.sample(&mut rng);
-                params.h = p4.sample(&mut rng);
-                params.i = p1.sample(&mut rng);
-                params.j = p2.sample(&mut rng);
-                params.k = p3.sample(&mut rng);
-                params.l = p4.sample(&mut rng);
+                let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
+                let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
+                let p2 = rand::distributions::Uniform::new_inclusive(0.0, 5.0);
+                let p3 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+                let p4 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+                params.red.diffusion_coefficient = p0.sample(&mut rng);
+                params.red.growth_rate = p1.sample(&mut rng);
+                params.red.interaction_coefficient = p2.sample(&mut rng);
+                params.red.saturation_constant = p3.sample(&mut rng);
+                params.red.feedback_coefficient = p4.sample(&mut rng);
+                params.green.diffusion_coefficient = p0.sample(&mut rng);
+                params.green.growth_rate = p1.sample(&mut rng);
+                params.green.interaction_coefficient = p2.sample(&mut rng);
+                params.green.saturation_constant = p3.sample(&mut rng);
+                params.green.feedback_coefficient = p4.sample(&mut rng);
+                params.blue.diffusion_coefficient = p0.sample(&mut rng);
+                params.blue.growth_rate = p1.sample(&mut rng);
+                params.blue.interaction_coefficient = p2.sample(&mut rng);
+                params.blue.saturation_constant = p3.sample(&mut rng);
+                params.blue.feedback_coefficient = p4.sample(&mut rng);
             };
             if ui.button("Reset & Random").clicked() {
                 params.resetting = true;
                 let mut rng = rand::thread_rng();
-                let p0 = rand::distributions::Uniform::new_inclusive(0.001, 0.1);
-                let p1 = rand::distributions::Uniform::new_inclusive(0.9, 0.99);
-                let p2 = rand::distributions::Uniform::new_inclusive(0.4, 5.0);
-                let p3 = rand::distributions::Uniform::new_inclusive(0.1, 1.0);
-                let p4 = rand::distributions::Uniform::new_inclusive(0.001, 1.0);
-                params.diffusion_factor_red = p0.sample(&mut rng);
-                params.diffusion_factor_green = p0.sample(&mut rng);
-                params.diffusion_factor_blue = p0.sample(&mut rng);
-                params.a = p1.sample(&mut rng);
-                params.b = p2.sample(&mut rng);
-                params.c = p3.sample(&mut rng);
-                params.d = p4.sample(&mut rng);
-                params.e = p1.sample(&mut rng);
-                params.f = p2.sample(&mut rng);
-                params.g = p3.sample(&mut rng);
-                params.h = p4.sample(&mut rng);
-                params.i = p1.sample(&mut rng);
-                params.j = p2.sample(&mut rng);
-                params.k = p3.sample(&mut rng);
-                params.l = p4.sample(&mut rng);
+                let p0 = rand::distributions::Uniform::new_inclusive(0.0, 0.1);
+                let p1 = rand::distributions::Uniform::new_inclusive(0.8, 1.0);
+                let p2 = rand::distributions::Uniform::new_inclusive(0.0, 5.0);
+                let p3 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+                let p4 = rand::distributions::Uniform::new_inclusive(0.0, 1.0);
+                params.red.diffusion_coefficient = p0.sample(&mut rng);
+                params.red.growth_rate = p1.sample(&mut rng);
+                params.red.interaction_coefficient = p2.sample(&mut rng);
+                params.red.saturation_constant = p3.sample(&mut rng);
+                params.red.feedback_coefficient = p4.sample(&mut rng);
+                params.green.diffusion_coefficient = p0.sample(&mut rng);
+                params.green.growth_rate = p1.sample(&mut rng);
+                params.green.interaction_coefficient = p2.sample(&mut rng);
+                params.green.saturation_constant = p3.sample(&mut rng);
+                params.green.feedback_coefficient = p4.sample(&mut rng);
+                params.blue.diffusion_coefficient = p0.sample(&mut rng);
+                params.blue.growth_rate = p1.sample(&mut rng);
+                params.blue.interaction_coefficient = p2.sample(&mut rng);
+                params.blue.saturation_constant = p3.sample(&mut rng);
+                params.blue.feedback_coefficient = p4.sample(&mut rng);
             }
         });
         ui.add(egui::Slider::new(&mut params.render_channel, 0..=3).text("Render Channel"));

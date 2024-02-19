@@ -8,9 +8,6 @@ use super::torus_topology;
 pub struct CellularSystemState {
     pub texture_handle: String,
     pub iterating: bool,
-    pub diffusion_factor_red: f32,
-    pub diffusion_factor_green: f32,
-    pub diffusion_factor_blue: f32,
     iteration_in_buffer: u64,
     iterations_done: u64,
     pub texture: Option<egui::TextureHandle>,
@@ -23,23 +20,23 @@ pub struct CellularSystemState {
     pub render_channel: usize,
     pub map_size: [usize; 2],
     pub canvas_size: [f32; 2],
-    pub a: f32,
-    pub b: f32,
-    pub c: f32,
-    pub d: f32,
-    pub e: f32,
-    pub f: f32,
-    pub g: f32,
-    pub h: f32,
-    pub i: f32,
-    pub j: f32,
-    pub k: f32,
-    pub l: f32,
+    pub red: ChannelParameters,
+    pub green: ChannelParameters,
+    pub blue: ChannelParameters,
 }
 
 #[derive(Clone, Default, Resource)]
 pub struct HeightMapMesh {
     pub mesh: Option<Handle<Mesh>>,
+}
+
+#[derive(Clone, Default)]
+pub struct ChannelParameters {
+    pub diffusion_coefficient: f32,
+    pub growth_rate: f32,
+    pub interaction_coefficient: f32,
+    pub saturation_constant: f32,
+    pub feedback_coefficient: f32,
 }
 
 impl CellularSystemState {
@@ -83,9 +80,6 @@ impl Default for CellularSystemState {
             texture: None,
             new_texture: initial_system(160, 160),
             iterating: true,
-            diffusion_factor_red: 0.02248,
-            diffusion_factor_green: 0.08454,
-            diffusion_factor_blue: 0.05918,
             painting: false,
             paint_pos: [50.0, 50.0].into(),
             paint_color: [1.0, 1.0, 1.0],
@@ -94,18 +88,27 @@ impl Default for CellularSystemState {
             render_channel: 3,
             map_size: [160, 160],
             canvas_size: [320.0, 320.0],
-            a: 0.98204,
-            b: 3.195,
-            c: 0.112,
-            d: 0.458,
-            e: 0.92762,
-            f: 4.666,
-            g: 0.62,
-            h: 0.981,
-            i: 0.92696,
-            j: 2.015,
-            k: 0.465,
-            l: 0.727,
+            red: ChannelParameters {
+                diffusion_coefficient: 0.02248,
+                growth_rate: 0.98204,
+                interaction_coefficient: 3.195,
+                saturation_constant: 0.112,
+                feedback_coefficient: 0.458,
+            },
+            green: ChannelParameters {
+                diffusion_coefficient: 0.08454,
+                growth_rate: 0.92762,
+                interaction_coefficient: 4.666,
+                saturation_constant: 0.62,
+                feedback_coefficient: 0.981,
+            },
+            blue: ChannelParameters {
+                diffusion_coefficient: 0.05918,
+                growth_rate: 0.92696,
+                interaction_coefficient: 2.015,
+                saturation_constant: 0.465,
+                feedback_coefficient: 0.727,
+            },
         }
     }
 }
@@ -181,16 +184,25 @@ pub fn next_iteration(mut params: ResMut<CellularSystemState>) {
                     let green = params.new_texture[(x, y)].to_array()[1] as f32;
                     let blue = params.new_texture[(x, y)].to_array()[2] as f32;
 
-                    let pixel_r = diffusion(red, r_sum_neighbours, params.diffusion_factor_red)
-                        + (255.0 * reaction_red(red / 255.0, green / 255.0, blue / 255.0, &params));
+                    let pixel_r =
+                        diffusion(red, r_sum_neighbours, params.red.diffusion_coefficient)
+                            + (255.0
+                                * reaction_red(red / 255.0, green / 255.0, blue / 255.0, &params));
 
-                    let pixel_g = diffusion(green, g_sum_neighbours, params.diffusion_factor_green)
-                        + (255.0
-                            * reaction_green(red / 255.0, green / 255.0, blue / 255.0, &params));
+                    let pixel_g =
+                        diffusion(green, g_sum_neighbours, params.green.diffusion_coefficient)
+                            + (255.0
+                                * reaction_green(
+                                    red / 255.0,
+                                    green / 255.0,
+                                    blue / 255.0,
+                                    &params,
+                                ));
 
-                    let pixel_b = diffusion(blue, b_sum_neighbours, params.diffusion_factor_blue)
-                        + (255.0
-                            * reaction_blue(red / 255.0, green / 255.0, blue / 255.0, &params));
+                    let pixel_b =
+                        diffusion(blue, b_sum_neighbours, params.blue.diffusion_coefficient)
+                            + (255.0
+                                * reaction_blue(red / 255.0, green / 255.0, blue / 255.0, &params));
 
                     new_image[(x, y)] =
                         egui::Color32::from_rgb(pixel_r as u8, pixel_g as u8, pixel_b as u8);
@@ -217,8 +229,10 @@ fn reaction_red(
     blue: f32,
     params: &bevy::prelude::ResMut<'_, CellularSystemState>,
 ) -> f32 {
-    params.a * red * (1.0 - red) - ((params.b * red * green) / (1.0 + params.c * red * red))
-        + params.d * (green - red) * blue * blue
+    params.red.growth_rate * red * (1.0 - red)
+        - ((params.red.interaction_coefficient * red * green)
+            / (1.0 + params.red.saturation_constant * red * red))
+        + params.red.feedback_coefficient * (green - red) * blue * blue
 }
 
 fn reaction_green(
@@ -227,9 +241,10 @@ fn reaction_green(
     blue: f32,
     params: &bevy::prelude::ResMut<'_, CellularSystemState>,
 ) -> f32 {
-    params.e * green * (1.0 - green)
-        - ((params.f * green * blue) / (1.0 + params.g * green * green))
-        + params.h * (blue - green) * red * red
+    params.green.growth_rate * green * (1.0 - green)
+        - ((params.green.interaction_coefficient * green * blue)
+            / (1.0 + params.green.saturation_constant * green * green))
+        + params.green.feedback_coefficient * (blue - green) * red * red
 }
 
 fn reaction_blue(
@@ -238,6 +253,8 @@ fn reaction_blue(
     blue: f32,
     params: &bevy::prelude::ResMut<'_, CellularSystemState>,
 ) -> f32 {
-    params.i * blue * (1.0 - blue) - ((params.j * blue * red) / (1.0 + params.k * blue * blue))
-        + params.l * (red - blue) * green * green
+    params.blue.growth_rate * blue * (1.0 - blue)
+        - ((params.blue.interaction_coefficient * blue * red)
+            / (1.0 + params.blue.saturation_constant * blue * blue))
+        + params.blue.feedback_coefficient * (red - blue) * green * green
 }

@@ -8,7 +8,7 @@ fn main() {
             DefaultPlugins.set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "Artificial Life Explorer".into(),
-                    present_mode: bevy::window::PresentMode::AutoNoVsync,
+                    //present_mode: bevy::window::PresentMode::AutoNoVsync,
                     fit_canvas_to_parent: true,
                     prevent_default_event_handling: false,
                     window_theme: Some(bevy::window::WindowTheme::Dark),
