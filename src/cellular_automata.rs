@@ -44,10 +44,10 @@ pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::Cellula
                 .load_texture(new_name, new_image, Default::default())
         });
 
-        let img = ui.image(
-            texture_handle_to_render,
+        let img = ui.add(egui::widgets::Image::new(egui::load::SizedTexture::new(
+            texture_handle_to_render.id(),
             bevy_egui::egui::Vec2::new(raw_size[0], raw_size[1]),
-        );
+        )));
 
         if let Some(pos) = img.hover_pos() {
             let min_pos = img.rect.min;
