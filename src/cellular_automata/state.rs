@@ -20,6 +20,7 @@ pub struct CellularSystemState {
     pub render_channel: usize,
     pub map_size: [usize; 2],
     pub canvas_size: [f32; 2],
+    pub fps: f64,
     pub red: ChannelParameters,
     pub green: ChannelParameters,
     pub blue: ChannelParameters,
@@ -88,6 +89,7 @@ impl Default for CellularSystemState {
             render_channel: 3,
             map_size: [160, 160],
             canvas_size: [320.0, 320.0],
+            fps: 30.0,
             red: ChannelParameters {
                 diffusion_coefficient: 0.02248,
                 growth_rate: 0.98204,

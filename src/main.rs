@@ -22,12 +22,13 @@ fn main() {
         ))
         .insert_resource(cellular_automata::state::CellularSystemState::default())
         .insert_resource(cellular_automata::state::HeightMapMesh::default())
+        .insert_resource(Time::<Fixed>::from_hz(30.0))
         .add_systems(Startup, cellular_automata::setup_3d_scene)
+        .add_systems(Update, cellular_automata::egui_system)
         .add_systems(
-            Update,
+            FixedUpdate,
             (
                 cellular_automata::state::next_iteration,
-                cellular_automata::egui_system,
                 cellular_automata::height_map::update_heightmap,
             ),
         )

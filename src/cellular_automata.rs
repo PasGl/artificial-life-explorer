@@ -5,13 +5,23 @@ pub(crate) mod height_map;
 pub(crate) mod state;
 mod torus_topology;
 
-pub fn egui_system(mut contexts: EguiContexts, mut params: ResMut<state::CellularSystemState>) {
+pub fn egui_system(
+    mut contexts: EguiContexts,
+    mut params: ResMut<state::CellularSystemState>,
+    mut timer: ResMut<Time<Fixed>>,
+) {
     if params.painting {
         params.paint();
     }
     egui::Window::new("Control").show(contexts.ctx_mut(), |ui| {
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-            ui.checkbox(&mut params.iterating, "keep runnning");
+            ui.checkbox(&mut params.iterating, "keep runnning at");
+            let fps_slider = ui.add(egui::Slider::new(&mut params.fps, 1.0..=120.0).text("FPS"));
+            if fps_slider.dragged() {
+                timer.set_timestep_hz(params.fps);
+            }
+        });
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             if ui.button("Reset").clicked() {
                 params.resetting = true;
             }
