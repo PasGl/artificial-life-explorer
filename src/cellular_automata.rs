@@ -22,26 +22,52 @@ pub fn egui_system(
             }
         });
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-            if ui.button("Reset").clicked() {
+            if ui.button("Reset Map").clicked() {
                 params.resetting = true;
             }
-            if ui.button("Random").clicked() {
+            if ui.button("Random Rules").clicked() {
                 params.red = random_channel_parameters();
                 params.green = random_channel_parameters();
                 params.blue = random_channel_parameters();
             };
-            if ui.button("Reset & Random").clicked() {
+            if ui.button("Reset Map & Random Rules").clicked() {
                 params.resetting = true;
                 params.red = random_channel_parameters();
                 params.green = random_channel_parameters();
                 params.blue = random_channel_parameters();
             }
         });
-        ui.add(egui::Slider::new(&mut params.render_channel, 0..=3).text("Render Channel"));
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+            ui.heading("Heightmap");
+            if ui
+                .add(egui::RadioButton::new(params.render_channel == 0, "Red"))
+                .clicked()
+            {
+                params.render_channel = 0;
+            }
+            if ui
+                .add(egui::RadioButton::new(params.render_channel == 1, "Green"))
+                .clicked()
+            {
+                params.render_channel = 1;
+            }
+            if ui
+                .add(egui::RadioButton::new(params.render_channel == 2, "Blue"))
+                .clicked()
+            {
+                params.render_channel = 2;
+            }
+            if ui
+                .add(egui::RadioButton::new(params.render_channel == 3, "Sum"))
+                .clicked()
+            {
+                params.render_channel = 3;
+            }
+        });
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             ui.heading("Paint");
             ui.color_edit_button_rgb(&mut params.paint_color);
-            ui.add(egui::Slider::new(&mut params.paint_radius, 1..=100).text("Radius"));
+            ui.add(egui::Slider::new(&mut params.paint_radius, 1..=100).text("px Radius"));
         });
         egui::warn_if_debug_build(ui);
 
