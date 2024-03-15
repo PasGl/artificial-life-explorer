@@ -21,11 +21,11 @@ jobs:
           override: true
       - run: sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
       - name: Download and install Trunk binary
         run: wget -qO- https://github.com/trunk-rs/trunk/releases/latest/download/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
       - name: Build
-        run: ./trunk build --release -d dist --public-url "${GITHUB_REPOSITORY#*/}"
+        run: ./trunk build --release -d dist --public-url "./artificial-life-explorer/"
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
