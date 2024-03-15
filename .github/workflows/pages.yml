@@ -25,7 +25,7 @@ jobs:
       - name: Download and install Trunk binary
         run: wget -qO- https://github.com/trunk-rs/trunk/releases/latest/download/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
       - name: Build
-        run: ./trunk build --release -d dist --public-url "./artificial-life-explorer/"
+        run: ./trunk build --release -d dist --public-url "./"
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
